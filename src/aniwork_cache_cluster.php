@@ -67,12 +67,12 @@ if($is_corrent===false){
 }
 
 // 저장소에 저장할 파일명
-$hashedUrl = ".".sha1(_CACHE_PREFIX_.$_GET['path']).'.'.$ext;
+$hashed_url = ".".sha1(_CACHE_PREFIX_.$_GET['path']).'.'.$ext;
 // echo $hashedUrl;
-if(is_file('./.httpcache/'.$hashedUrl)){
+if(is_file('./.httpcache/'.$hashed_url)){
     header($header);
     header("Cache-Control: max-age=14400, public");
-    $fp = fopen('./.httpcache/'.$hashedUrl, 'rb');
+    $fp = fopen('./.httpcache/'.$hashed_url, 'rb');
     fpassthru($fp);
     fclose($fp);
     exit;
@@ -94,7 +94,7 @@ header($header);
 // 이미지를 압축하는 경우 케싱 스토리지의 용량을 절약할 수 있습니다.
 
 // 파일이 정상인 경우
-$fp = fopen('./.httpcache/'.$hashedUrl, 'wb');
+$fp = fopen('./.httpcache/'.$hashed_url, 'wb');
 fwrite($fp, $file);
 fclose($fp);   
 
