@@ -6,6 +6,7 @@ Mastodon Ani.work(Aniwork Network) Cache Storage Cluster
   - curl, extension
 - apache2
   - override
+  - rewrite
 
 # usage
 1. Install Apache2 and PHP8.0, settings conf file.
