@@ -10,5 +10,5 @@ Mastodon Ani.work(Aniwork Network) Cache Storage Cluster
 
 # usage
 1. Install Apache2 and PHP8.0, settings conf file.
-2. Make .httpcache directory and upload files.
+2. Make .httpcache and .emoji directory and upload files.
 3. End!
