@@ -21,6 +21,11 @@
 define('_CACHE_PREFIX_', 'filename_');
 define('_STORAGE_DOMAIN_', 'S3 저장소 도메인');
 
+if(str_contains($_SERVER['REQUEST_URI'], '&path=') || str_contains($_SERVER['REQUEST_URI'], '?path=')){
+    header('location:/');
+    exit;
+}
+
 // 전처리 (확장자 처리)
 $extension = [
     'png'=>'image/png',
@@ -28,6 +33,7 @@ $extension = [
     'jpeg'=>'image/jpeg',
     'gif'=>'image/gif',
     'mp4'=>'video/mp4',
+    'webp'=>'image/webp'
 ];
 
 $header = "Content-Type: ";
@@ -40,6 +46,14 @@ if(isset($_GET['path']))
 // 쿼리스트링 분리 (클라우드 플레어를 사용하거나 특수환경에서는 그냥 넘어가도 됨)
 $_GET['path'] = strtok($_GET['path'], '?');
 $_GET['path'] = preg_replace("[^a-zA-Z\_0-9\.\/]", '', $_GET['path']);
+
+// path 여러번 입력해서 경로 이상해지는 문제 수정
+for($i=0; $i<20; $i++){
+        $_GET['path'] = str_replace('//', '/', $_GET['path']);
+        $_GET['path'] = str_replace('../', '/', $_GET['path']);
+        $_GET['path'] = str_replace('.../', '/', $_GET['path']);
+        $_GET['path'] = str_replace('..../', '/', $_GET['path']);
+}
 
 if(!isset($_GET['path'])){ 
     header("HTTP/1.0 404 Not Found");
@@ -67,12 +81,19 @@ if($is_corrent===false){
 }
 
 // 저장소에 저장할 파일명
-$hashed_url = ".".sha1(_CACHE_PREFIX_.$_GET['path']).'.'.$ext;
+$hashedUrl = ".".sha1(_CACHE_PREFIX_.$_GET['path']).'.'.$ext;
 // echo $hashedUrl;
-if(is_file('./.httpcache/'.$hashed_url)){
+header("x-user-input: ".$_GET['path']);
+$imageMode = '.httpcache';
+if(
+  strpos($_GET['path'], 'custom_emojis')===0
+  || strpos($_GET['path'], '/custom_emojis')===0
+) $imageMode = '.emoji';
+
+if(is_file(__DIR__.'/'.$imageMode.'/'.$hashedUrl)){
     header($header);
-    header("Cache-Control: max-age=14400, public");
-    $fp = fopen('./.httpcache/'.$hashed_url, 'rb');
+    header("Cache-Control: max-age=544000, public");
+    $fp = fopen(__DIR__.'/'.$imageMode.'/'.$hashedUrl, 'rb');
     fpassthru($fp);
     fclose($fp);
     exit;
@@ -94,7 +115,7 @@ header($header);
 // 이미지를 압축하는 경우 케싱 스토리지의 용량을 절약할 수 있습니다.
 
 // 파일이 정상인 경우
-$fp = fopen('./.httpcache/'.$hashed_url, 'wb');
+$fp = fopen(__DIR__.'/'.$imageMode.'/'.$hashedUrl, 'wb');
 fwrite($fp, $file);
 fclose($fp);   
 
