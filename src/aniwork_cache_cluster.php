@@ -93,8 +93,12 @@ if(
 if(is_file(__DIR__.'/'.$imageMode.'/'.$hashedUrl)){
     header($header);
     header("Cache-Control: max-age=544000, public");
+    header("X-File-Generated: ".filemtime(__DIR__.'/'.$imageMode.'/'.$hashedUrl));
+    header("X-File-Generated-Y-m-d: ".date("Y-m-d H:i:s", filemtime(__DIR__.'/'.$imageMode.'/'.$hashedUrl)));
     $fp = fopen(__DIR__.'/'.$imageMode.'/'.$hashedUrl, 'rb');
-    fpassthru($fp);
+    //fpassthru($fp);
+    $read = fread($fp, filesize(__DIR__.'/'.$imageMode.'/'.$hashedUrl));
+    echo gzuncompress($read);
     fclose($fp);
     exit;
 }
@@ -116,7 +120,7 @@ header($header);
 
 // 파일이 정상인 경우
 $fp = fopen(__DIR__.'/'.$imageMode.'/'.$hashedUrl, 'wb');
-fwrite($fp, $file);
+fwrite($fp, gzcompress($file,9));
 fclose($fp);   
 
 echo $file;
