@@ -50,10 +50,19 @@ $_GET['path'] = preg_replace("[^a-zA-Z\_0-9\.\/]", '', $_GET['path']);
 // path 여러번 입력해서 경로 이상해지는 문제 수정
 for($i=0; $i<20; $i++){
         $_GET['path'] = str_replace('//', '/', $_GET['path']);
-        $_GET['path'] = str_replace('../', '/', $_GET['path']);
-        $_GET['path'] = str_replace('.../', '/', $_GET['path']);
-        $_GET['path'] = str_replace('..../', '/', $_GET['path']);
+        $_GET['path'] = str_replace(['//', '///', '/./', '../', '.../', '.../'], '/', $_GET['path']);
+        $_GET['path'] = str_replace(['..', '...', '...', '....', './/.'], '.', $_GET['path']);
 }
+
+if(strpos($_GET['path'], '..')!==false){
+  header("HTTP/1.0 404 Not Found");
+  exit;
+}
+
+/*if(strpos(realpath(__DIR__.'/'.$_GET['path']), __DIR__)!==0){
+  header("HTTP/1.0 404 Not Found");
+  exit;
+}*/
 
 if(!isset($_GET['path'])){ 
     header("HTTP/1.0 404 Not Found");
